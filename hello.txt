@@ -1,2 +1,112 @@
-�����Ǽٵ�
-ɶ�Ļ��Ῠ��
+树结构递归遍历
+
+
+数据库：/*
+ Navicat Premium Data Transfer
+
+ Source Server         : localhost
+ Source Server Type    : MySQL
+ Source Server Version : 50549
+ Source Host           : localhost:3306
+ Source Schema         : springboot
+
+ Target Server Type    : MySQL
+ Target Server Version : 50549
+ File Encoding         : 65001
+
+ Date: 05/09/2018 16:35:13
+*/
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for position
+-- ----------------------------
+DROP TABLE IF EXISTS `position`;
+CREATE TABLE `position`  (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `pid` int(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = MyISAM CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of position
+-- ----------------------------
+INSERT INTO `position` VALUES (1, '中国', 0);
+INSERT INTO `position` VALUES (2, '浙江', 1);
+INSERT INTO `position` VALUES (3, '江苏', 1);
+INSERT INTO `position` VALUES (4, '安徽', 1);
+INSERT INTO `position` VALUES (5, '黑龙江', 1);
+INSERT INTO `position` VALUES (6, '吉林', 1);
+INSERT INTO `position` VALUES (7, '辽宁', 1);
+INSERT INTO `position` VALUES (8, '四川', 1);
+INSERT INTO `position` VALUES (9, '杭州', 2);
+INSERT INTO `position` VALUES (10, '彭埠', 4);
+INSERT INTO `position` VALUES (11, '绍兴', 2);
+INSERT INTO `position` VALUES (12, '金华', 2);
+INSERT INTO `position` VALUES (13, '诸暨', 11);
+INSERT INTO `position` VALUES (14, '嵊州', 11);
+INSERT INTO `position` VALUES (15, '上虞', 11);
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+controller:
+    @GetMapping("sea")
+    public List<TreeOrg> i(){
+
+        return sea(0);
+    }
+
+    public List sea(Integer nowId){
+        List<TreeOrg> list = new ArrayList<>();
+
+        List<Position> listPo = new ArrayList<>();
+        listPo = treeService.findByPid(nowId);
+        if(listPo.size()>0){
+            for(Position position : listPo){
+                TreeOrg treeOrg = new TreeOrg();
+                treeOrg.setId(position.getId());
+                treeOrg.setName(position.getName());
+                treeOrg.setChild(sea(position.getId()));
+                list.add(treeOrg);
+            }
+        return  list;
+        }
+        return null;
+    }
+    
+    实体类：
+    @Entity
+public class Position {
+
+    @Id
+    private Integer id;
+
+    private String name;
+
+    private Integer pid;
+    
+}
+
+public class TreeOrg {
+
+    private Integer id;
+
+    private String name;
+
+    private List child;
+    
+}
+
+repository：
+
+@Repository
+public interface TreeRepository extends JpaRepository<Position,Id>{
+
+        List<Position> findByPid(Integer pid);
+}
+
+
+
